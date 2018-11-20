@@ -1,25 +1,59 @@
 /**
  * Created by mjc on 2018/11/19.
  */
-import {reqAddress,reqCategorys,reqShops} from '../api'
+import {
+  reqAddress,
+  reqFoodCategorys,
+  reqShops,
+  reqUserInfo,
+} from '../api'
 
-import {RECEIVE_ADDRESS, RECEIVE_CATEGORYS, RECEIVE_SHOPS} from './mutation-types'
+import {
+  RECEIVE_ADDRESS,
+  RECEIVE_CATEGORYS,
+  RECEIVE_SHOPS,
+  RECEIVE_USER,
+} from './mutation-types'
 
 export default {
   async getAddress({commit,state}){
-    const geohash=state.latitude+','+state.longitude
-    const result=await reqAddress(geohash)
-    commit(RECEIVE_ADDRESS,{address:result.data})
+    const {longitude, latitude} = state
+    const result = await reqAddress(longitude, latitude)
+    if(result.code===0){
+      const address=result.data
+      commit(RECEIVE_ADDRESS,{address})
+    }
   },
 
-  async getCategorys({commit}){
-    const result=await reqCategorys()
-    commit(RECEIVE_CATEGORYS,{categorys:result.data})
+
+  async getFoodCategorys({commit}){
+    const result=await reqFoodCategorys()
+    if(result.code===0){
+      const foodCategorys=result.data
+      commit(RECEIVE_CATEGORYS,{categorys:foodCategorys})
+    }
+
   },
 
   async getShops({commit,state}){
     const {latitude,longitude}=state
     const result=await reqShops({latitude,longitude})
-    commit(RECEIVE_SHOPS,{shops:result.data})
+    if(result.code===0){
+      const shops=result.data
+      commit(RECEIVE_SHOPS,{shops:result.data})
+    }
+  },
+
+
+  saveUser({commit},user){
+    commit(RECEIVE_USER,{user})
+  },
+  async getUserInfo({commit}){
+    const result=await reqUserInfo()
+    if(result.code===0){
+      const user=result.data
+    commit(RECEIVE_USER,{user})
+    }
   }
+
 }
